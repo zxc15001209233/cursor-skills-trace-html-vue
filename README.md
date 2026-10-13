@@ -16,7 +16,15 @@
 - **包 3**：不依赖「必须安装」1 或 2，但依赖它们的**产物**——符合约定的 Vue-ready HTML（`data-v-page` / `data-v-component`、可拆模块、图表固定高等）。  
   若手里已有同等约定的 HTML，可直接用包 3。
 
-串联示意见 [PIPELINE.md](./PIPELINE.md)。
+串联示意见 [PIPELINE.md](./PIPELINE.md)。三套均含**统一审核门禁**（P0/P1/P2：先修 P0 再交付）：
+
+| 包 | 对照真源 | 审核产物 |
+|----|----------|----------|
+| 截图 → HTML | 磁盘原图（大屏优先 1920×1080；禁止只靠聊天压缩图） | 差距清单 |
+| Axure → HTML | Axure 页 + 内嵌图表 HTML | `AUDIT.md` |
+| HTML → Vue3 | 已验收 Vue-ready HTML | `AUDIT-VUE.md` + `build` 通过 |
+
+**大屏页**：设计稿固定基准分辨率，视口 `scale(sx,sy)` 铺满，允许轻微拉伸（详见各 `SKILL.md` / [PIPELINE.md](./PIPELINE.md)）。
 
 ## 用 npx 安装（推荐）
 

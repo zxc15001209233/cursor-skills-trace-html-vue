@@ -6,13 +6,15 @@ description: >-
   the user asks to 转 Vue3、生成 Vue 工程、HTML 迁 Vue、原型工程化. Works for
   any mid-admin/dashboard Vue-ready HTML, not only one product. Input must be
   Vue-ready HTML (use screenshot-to-vue-ready-html or axure-html-restore first).
+  Always audit the Vue app against the source HTML and fix P0 before claiming
+  migration complete.
 ---
 
 # Vue-ready HTML → Vue3 工程（通用）
 
 流水线第 3 步：把**任意**已验收的 Vue-ready HTML 迁成可运行的独立 Vue3 工程。
 
-本 Skill 描述的是**通用迁移动作**，不绑定具体业务名、页面名或某次项目目录。业务特例（如某张地图高度表）放在「可选附录」，默认不要当成硬编码。
+本 Skill 描述的是**通用迁移动作**，不绑定具体业务名、页面名或某次项目目录。业务特例（如某张地图高度表）放在「可选附录」，默认不要当成硬编码。本包自洽，不依赖未随附的其它 Skill。
 
 ## 输入约定（通用契约）
 
@@ -27,7 +29,15 @@ description: >-
 | 逻辑可拆 | `widgets/` / `pages/` 模块，或按区块注释分块的 script |
 | 图表挂载 | 空容器 + **确定 px 高度**；可 init/dispose |
 
-不满足则先回上游 Skill，或先补标注再迁。
+不满足则先回上游 Skill，或先补标注再迁。若上游带 `AUDIT.md`，迁移时保留其高度/映射结论。
+
+## 真源（对照什么）
+
+| 优先级 | 真源 | 用途 |
+|--------|------|------|
+| 1 | 已验收的 Vue-ready HTML + `assets/`（及上游 `AUDIT.md`） | 布局、高度 px、组件边界、图表挂载 |
+| 2 | 浏览器中源 HTML 与 `npm run dev` 中的 Vue 页并排 | 迁移后审核 |
+| — | 聊天截图 / 口头「大概像」 | **不可**当高度或交互的唯一依据 |
 
 ## 开工前确认（问清再脚手架）
 
@@ -56,6 +66,7 @@ Vue 3 + Vite + TypeScript + Vue Router + Pinia
     styles/               ← tokens + 全局样式（从源 css 抽）
     api/                  ← mock + 预留
     router/
+  AUDIT-VUE.md            ← 迁移审核表（必交付）
 ```
 
 命名跟 `data-v-*`，**不要**写死某产品的组件清单。
@@ -66,7 +77,7 @@ Vue 3 + Vite + TypeScript + Vue Router + Pinia
 
 1. 盘点全部 `data-v-page` → 路由表  
 2. 公共壳（侧栏/顶栏）→ `layouts/*`  
-3. 筛选/全局状态 → Pinia；字段从源 HTML 抽取，禁止抄某项目的 `groupId/unit/...` 除非源里就有  
+3. 筛选/全局状态 → Pinia；字段从源 HTML 抽取，禁止抄某项目的字段除非源里就有  
 
 ### B. 组件拆分
 
@@ -92,23 +103,31 @@ Vue 3 + Vite + TypeScript + Vue Router + Pinia
 - 从源 `app.css` / 内联约定 / AUDIT **读取**各卡高度与栅格比例  
 - 禁止凭感觉改矮、改 `height:100%` 套 `min-height` 父级  
 - Tab：懒加载 + 切回 `resize()`；禁止每次整树 dispose 重建  
+- **大屏页**：保留源 HTML 的固定设计稿尺寸（如 1920×1080）+ `scale(sx,sy)` **铺满视口、允许轻微拉伸**；禁止改成流式 `100%` 重排，也禁止只用 `Math.min` 等比留黑边（除非用户明确要求）
 
 ### F. 静态资源
 
 - 按源 HTML 的相对路径镜像到 `public/`（含 `assets/geo/*`、字体、图片）  
 - Widget 内 `fetch('assets/...')` 的路径必须在 Vite 下可访问  
 
-## 审核（对照源 HTML，非某业务清单）
+## 审核 → 修复（必做；对照源 HTML）
 
-按页面出差异表：
+**脚手架跑起来 ≠ 迁移完成。** 必须对照源 HTML（及上游 AUDIT）审核后再交付。
 
-| 等级 | 含义 |
-|------|------|
-| P0 | 主信息架构/主交互明显不对（缺图、缺列、高度塌、空白图） |
-| P1 | 功能明显简化或布局比例差大 |
-| P2 | 组件库替换导致的细微样式差（`ep-acceptable` 下可留） |
+1. **并排对照**：同源路径打开源 HTML vs `npm run dev` 对应路由；逐 `data-v-component` 核对  
+2. 输出 `AUDIT-VUE.md` 差异表，按严重度：
 
-修完：`npm run build`（含类型检查）通过。
+| 等级 | 含义 | 处理 |
+|------|------|------|
+| **P0** | 缺图/空白图、高度塌、主交互明显不对、缺列/缺区块、图表被简化成「假图」 | **必须修完** |
+| **P1** | 功能明显简化、布局比例差大、Tab/筛选后偶发不 resize | 交付前尽量修；留下须书面说明 |
+| **P2** | 组件库替换导致的细微样式差 | `ep-acceptable` 可留；`strict` 尽量收 |
+
+3. **先修 P0，再修 P1**；修完再扫一轮，直到无 P0  
+4. 再跑：`npm run build`（含类型检查）通过  
+5. 用户说「差距大 / 审核一下 / 继续」时：回到本步，禁止只加功能不对照源 HTML  
+
+**禁止**跳过审核就声称「已迁完 / 已对齐原型」。
 
 ## 验收清单（通用）
 
@@ -116,6 +135,7 @@ Vue 3 + Vite + TypeScript + Vue Router + Pinia
 - [ ] 每个源 `data-v-component` 有对应 SFC 或书面合并说明  
 - [ ] 图表切换 Tab / 筛选后不塌、不空白  
 - [ ] 高度与栅格与源 HTML 同档（strict）或差异已记录（ep-acceptable）  
+- [ ] 已产出 `AUDIT-VUE.md`，无未关闭的 P0  
 - [ ] 无擅自改写无关业务仓库  
 
 ## 开场话术
@@ -125,7 +145,8 @@ Vue 3 + Vite + TypeScript + Vue Router + Pinia
 在 {目标目录} 建独立 Vue3 工程。一期页面：{列表}。
 UI 库：{Element Plus|…}；保真：{strict|ep-acceptable}。
 按 data-v-page/component 拆 SFC；复杂图优先挂源 widget 并锁定源高度；
-交付可 dev/build，并出 vs 源 HTML 的 P0/P1/P2 差异表。
+交付可 dev/build，并出 AUDIT-VUE.md（vs 源 HTML 的 P0/P1/P2）；
+必须消除 P0 后再交，禁止跳过审核。
 ```
 
 ## 可选附录：中后台 + ECharts 常见坑
