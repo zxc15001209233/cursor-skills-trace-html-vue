@@ -41,7 +41,7 @@ description: >-
 
 每个 element：`type`、`text`（不漏小字）、`color`（#hex）、`bbox` 归一化 `[x1,y1,x2,y2]`、`style`（圆角/阴影/字号/对齐）。
 
-`global_info.vue_hint`：建议组件名（PascalCase）与职责，如 `FilterBar`、`KpiRow`、`DailyScanChart`。
+`global_info.vue_hint`：建议组件名（PascalCase）与职责（按页面实际命名，勿套用某业务固定清单）。
 
 ### Step 2 — JSON → Vue-ready HTML
 
@@ -72,6 +72,6 @@ description: >-
 
 ## 相关
 
-- 项目提示词原文：`~/Desktop/rebuild/PROMPTS.md`「B」  
 - 下一步工程化：`vue-ready-html-to-vue3`  
-- 有 Axure 真图时升级：`axure-html-restore`
+- 有 Axure 真图时升级：`axure-html-restore`  
+- 项目内若有 `PROMPTS.md`「截图→HTML」章节可作补充，不作为唯一路径

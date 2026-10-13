@@ -1,156 +1,145 @@
 ---
 name: vue-ready-html-to-vue3
 description: >-
-  Scaffolds an independent Vue3+Vite+TS+Pinia+Element Plus+ECharts project from
-  Vue-ready rebuild HTML (data-v-page/component + TraceWidgets). Use when the
-  user asks to 转 Vue3、生成 Vue 工程、迁到 vue-trace、HTML 还原为 Vue、一期
-  总览+详情工程化. Input is rebuild-style HTML/widgets, not Axure export or
-  raw screenshots (use axure-html-restore / screenshot-to-vue-ready-html first).
+  Turns Vue-ready hand-written HTML (data-v-page/component, modular widgets,
+  fixed-height chart mounts) into an independent Vue3+Vite+TS project. Use when
+  the user asks to 转 Vue3、生成 Vue 工程、HTML 迁 Vue、原型工程化. Works for
+  any mid-admin/dashboard Vue-ready HTML, not only one product. Input must be
+  Vue-ready HTML (use screenshot-to-vue-ready-html or axure-html-restore first).
 ---
 
-# Vue-ready HTML → Vue3 工程
+# Vue-ready HTML → Vue3 工程（通用）
 
-流水线第 3 步：把已验收的 Vue-ready HTML（`rebuild/`）迁成可运行的独立 Vue3 工程。
+流水线第 3 步：把**任意**已验收的 Vue-ready HTML 迁成可运行的独立 Vue3 工程。
 
-参考实现：`~/Desktop/rebuild/vue-trace/`。
+本 Skill 描述的是**通用迁移动作**，不绑定具体业务名、页面名或某次项目目录。业务特例（如某张地图高度表）放在「可选附录」，默认不要当成硬编码。
 
-## 输入前提（不满足则停）
+## 输入约定（通用契约）
 
-- 有 `{page}.html` + `data-v-page` / `data-v-component`  
-- 有 `assets/widgets/*.js`（`TraceWidgets.mountXxx`）或可 1:1 迁的图表逻辑  
-- 有卡片**确定 px** 高度（见 `app.css` / AUDIT）  
-- 用户已确认：独立工程（默认不进既有业务仓如 AIPR-WEB）、一期页面范围、是否尽量 Element Plus  
+源 HTML 至少满足：
 
-缺 Axure/截图还原时，先跑上游 Skill。
+| 约定 | 说明 |
+|------|------|
+| `data-v-page` | 一页 → 一个 `views/*Page.vue` |
+| `data-v-component` | 一区块 → 一个 SFC（或明确合并理由） |
+| 语义化结构 | `header` / `aside` / `main` / `section`… |
+| 样式可抽 | class + token/css；非满屏无 class 内联 |
+| 逻辑可拆 | `widgets/` / `pages/` 模块，或按区块注释分块的 script |
+| 图表挂载 | 空容器 + **确定 px 高度**；可 init/dispose |
 
-## 技术栈（默认）
+不满足则先回上游 Skill，或先补标注再迁。
 
-Vue 3 + Vite + TypeScript + Vue Router + Pinia + Element Plus + ECharts 5
+## 开工前确认（问清再脚手架）
 
-## 架构约定
+1. **工程位置**：独立新仓 / 指定目录（默认独立，不擅自改无关业务仓）  
+2. **一期页面范围**：从源 HTML 列出，用户确认子集  
+3. **UI 库**：默认 Element Plus；可改为 Naive / Ant Design Vue / 无组件库  
+4. **图表**：有 ECharts 则装 ECharts；复杂 IIFE widget 过渡期可挂载，目标仍是 Vue SFC  
+5. **保真策略**：`strict`（交互/高度对齐源 HTML）或 `ep-acceptable`（表单/表可用组件库，细微差可接受）
+
+## 默认技术栈
+
+Vue 3 + Vite + TypeScript + Vue Router + Pinia  
++（可选）选定的 UI 库 + ECharts（源有图才装）
+
+## 通用目录
 
 ```
 {vue-app}/
-  public/
-    trace-widgets/*.js     ← 复杂图 1:1 IIFE（过渡期）
-    assets/geo/china.json  ← 地图本地优先（路径与 widget 内 fetch 一致）
+  public/                 ← 静态资源；若有 IIFE widgets / geojson 按源路径镜像
   src/
-    views/                 ← data-v-page
-    layouts/MainLayout.vue
-    components/
-      filter/ kpi/ charts/ tables/
-    stores/filter.ts
-    composables/
-      useEcharts.ts        ← 自绘/轻量图
-      useLegacyWidget.ts   ← 挂载 TraceWidgets
-    styles/tokens.css
+    views/                ← data-v-page
+    layouts/              ← 壳（侧栏+主区等，按源有无）
+    components/           ← data-v-component（可按 filter/kpi/charts/tables 分子目录）
+    stores/               ← 从筛选/全局状态抽象，字段跟源页面，不预设业务名
+    composables/          ← useEcharts、useLegacyWidget（若需要）等
+    styles/               ← tokens + 全局样式（从源 css 抽）
+    api/                  ← mock + 预留
+    router/
 ```
 
-### 组件映射
+命名跟 `data-v-*`，**不要**写死某产品的组件清单。
 
-按 HTML 的 `data-v-component` **一图一 SFC**（或一表一 SFC）。薄封装示例：
+## 迁移策略（通用）
 
-```vue
-<!-- charts/DailyScanChart.vue -->
-<LegacyMount script-src="/trace-widgets/daily-scan.js"
-  mount-name="mountDailyScan" :height="333" />
-```
+### A. 壳与路由
 
-### Element Plus 边界
+1. 盘点全部 `data-v-page` → 路由表  
+2. 公共壳（侧栏/顶栏）→ `layouts/*`  
+3. 筛选/全局状态 → Pinia；字段从源 HTML 抽取，禁止抄某项目的 `groupId/unit/...` 除非源里就有  
 
-| 用 EP | 少用/不用 EP |
-|-------|----------------|
-| 侧栏菜单、筛选、Tab、业务表格、按钮 | 图表内部 DOM（地图控件、双环下钻等） |
+### B. 组件拆分
 
-细微视觉差可接受；**主图表交互与高度**不可简化。
+- 每个 `data-v-component` → 一 SFC（一图一文件 / 一表一文件为默认）  
+- HTML 注释里的 `views/… · components/…` 优先采用  
 
-## 执行流程
+### C. 图表保真阶梯
 
-### 1. 脚手架
-
-```bash
-npm create vite@latest {app} -- --template vue-ts
-npm i vue-router@4 pinia element-plus @element-plus/icons-vue echarts
-npm i -D sass unplugin-vue-components unplugin-auto-import
-```
-
-拷贝 `tokens.css`、`china.json`；配置 EP 自动导入 + 中文 locale。
-
-### 2. 壳层
-
-- `MainLayout`：侧栏 + `<router-view>`  
-- `FilterBar`：EP 表单；文案/选项对齐 HTML  
-- `stores/filter`：集团/本部/日期/口径/Tab/queryVersion  
-
-### 3. 迁图策略（按保真度）
-
-| 复杂度 | 策略 |
-|--------|------|
-| 简单 KPI/表（列可 EP） | Vue SFC + mock / `el-table` |
-| 双环下钻、分位+趋势、桑基、地图控件 | **优先** `useLegacyWidget` 挂原 widget，高度锁 Axure px |
-| 已 Vue 化但差距大 | 回退 legacy，再排期重写 |
-
-**禁止**长期用「能跑的简化 ECharts」冒充原型（单环、缺列、矮容器）。
-
-### 4. 高度与布局
-
-从 rebuild `app.css` 锁定，例如：
-
-| 卡片 | 高度 |
+| 情况 | 做法 |
 |------|------|
-| daily-scan | 333 |
-| china-map-heat / atc | 417 |
-| monthly-ent | 450 |
-| ttm / mom-map | 436 |
-| yoy-scan / yoy-map | 448 |
-| bubble / key-pct / ytd | 520 |
-| product-six | 432 |
-| top200-* | 439 |
+| 逻辑简单、易 Vue 化 | SFC + `useEcharts`（init / setOption / resize / dispose） |
+| 复杂交互已有独立 IIFE/`mountXxx` | 过渡期 `useLegacyWidget` 挂载；**高度用源 CSS/AUDIT 的 px** |
+| 已 Vue 化但明显简化 | 标为 P0，回挂源 widget 或重迁，禁止长期「能跑的假图」 |
 
-网格比例对齐 HTML（如 flex `1.7 : 1`），不要只靠随意 `el-col 14/10` 凑合后不管验收。
+### D. UI 库边界（有组件库时）
 
-### 5. Tab / Resize
+| 倾向用组件库 | 倾向保留自绘 |
+|--------------|--------------|
+| 菜单、表单、日期、Tab、业务表格、对话框 | 图表内部控件、强自定义工具条、像素敏感布局 |
 
-- `el-tabs` + `lazy`；切回调用子组件 `resize()`  
-- **禁止**每次 dispose 整树重建  
-- 地图：`window.echarts = echarts` 后再 mount IIFE  
+### E. 布局与高度
 
-### 6. 地图踩坑（必查）
+- 从源 `app.css` / 内联约定 / AUDIT **读取**各卡高度与栅格比例  
+- 禁止凭感觉改矮、改 `height:100%` 套 `min-height` 父级  
+- Tab：懒加载 + 切回 `resize()`；禁止每次整树 dispose 重建  
 
-1. Widget fetch 路径 `assets/geo/china.json` → 放到 `public/assets/geo/`  
-2. 压缩 geo 上勿误裁 `removeSouthernIslands`（编码 ring 为 string 则跳过）  
-3. 挂载后若 canvas 有尺寸但仍大片空白 → 查 MultiPolygon 是否被滤空  
+### F. 静态资源
 
-### 7. 审核与修复
+- 按源 HTML 的相对路径镜像到 `public/`（含 `assets/geo/*`、字体、图片）  
+- Widget 内 `fetch('assets/...')` 的路径必须在 Vite 下可访问  
 
-对照 rebuild 写差异表（P0/P1/P2）：
+## 审核（对照源 HTML，非某业务清单）
 
-- P0：双环下钻、企业表列/切换、分位+趋势、详情 KPI 数值、Top200 列/高度  
-- P1：TTM/YoY 完整交互、地图控件定位、固定高度  
-- P2：侧栏/筛选 EP 细微差  
+按页面出差异表：
 
-修完跑 `npm run build`（含 `vue-tsc`）。
+| 等级 | 含义 |
+|------|------|
+| P0 | 主信息架构/主交互明显不对（缺图、缺列、高度塌、空白图） |
+| P1 | 功能明显简化或布局比例差大 |
+| P2 | 组件库替换导致的细微样式差（`ep-acceptable` 下可留） |
 
-## 验收清单
+修完：`npm run build`（含类型检查）通过。
 
-- [ ] `npm run dev` 一期路由可开  
-- [ ] Tab 切换图不塌、不空白  
-- [ ] 复杂图与 rebuild 并排：环/柱/桑基/地图交互一致  
-- [ ] 卡片高度与 rebuild 同档 px  
-- [ ] 地图全省可见（非仅 Polygon 省份）  
-- [ ] 不依赖无关业务仓  
+## 验收清单（通用）
+
+- [ ] 一期路由可开，`npm run dev` / `build` 通过  
+- [ ] 每个源 `data-v-component` 有对应 SFC 或书面合并说明  
+- [ ] 图表切换 Tab / 筛选后不塌、不空白  
+- [ ] 高度与栅格与源 HTML 同档（strict）或差异已记录（ep-acceptable）  
+- [ ] 无擅自改写无关业务仓库  
 
 ## 开场话术
 
 ```text
-按 vue-ready-html-to-vue3：以 ~/Desktop/rebuild 为金标准，在 {目标目录}
-建独立 Vue3 工程。一期页面：{列表}。尽量 Element Plus（筛选+表）；
-复杂图用 TraceWidgets 1:1 挂载并锁定 Axure 高度；拷贝 geo；
-交付可 npm run dev / build，并出 vs-rebuild 差异表。
+按 vue-ready-html-to-vue3（通用流程）：以 {源 HTML 目录} 为金标准，
+在 {目标目录} 建独立 Vue3 工程。一期页面：{列表}。
+UI 库：{Element Plus|…}；保真：{strict|ep-acceptable}。
+按 data-v-page/component 拆 SFC；复杂图优先挂源 widget 并锁定源高度；
+交付可 dev/build，并出 vs 源 HTML 的 P0/P1/P2 差异表。
 ```
+
+## 可选附录：中后台 + ECharts 常见坑
+
+仅在源包含对应能力时使用，**不是默认必做清单**：
+
+- 地图：本地 GeoJSON；echarts 压缩坐标勿误做纬度裁剪（string ring 跳过）  
+- 多图 Tab：保活 + resize；口径切换关动画、避免 O(n²)  
+- IIFE 挂载前设置 `window.echarts`  
+- 审计时优先查：双环/堆叠是否被简化、表列是否被裁、卡片高度是否被改矮  
+
+历史参考实现（非模板）：某次 `rebuild/` → `vue-trace/` 仅作对照，新项目禁止照抄业务字段与高度表。
 
 ## 相关
 
 - 上游截图：`screenshot-to-vue-ready-html`  
-- 上游 Axure：`axure-html-restore`  
-- 设计参考：`vue-trace/docs/superpowers/specs/*`
+- 上游 Axure：`axure-html-restore`
