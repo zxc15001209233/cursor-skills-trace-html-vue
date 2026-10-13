@@ -1,0 +1,32 @@
+{
+  "name": "html-vue-agent-skills",
+  "version": "1.0.0",
+  "description": "Agent workflows: screenshot/Axure → Vue-ready HTML → Vue3. Install via npx into any editor skill/rules folder.",
+  "bin": {
+    "html-vue-agent-skills": "./bin/install.mjs"
+  },
+  "files": [
+    "bin",
+    "screenshot-to-vue-ready-html",
+    "axure-html-restore",
+    "vue-ready-html-to-vue3",
+    "PIPELINE.md",
+    "README.md"
+  ],
+  "keywords": [
+    "agent",
+    "skills",
+    "cursor",
+    "vue3",
+    "axure",
+    "html"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/zxc19890923/cursor-skills-trace-html-vue.git"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

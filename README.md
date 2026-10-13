@@ -8,7 +8,7 @@
 | [`axure-html-restore`](./axure-html-restore/) | Axure 导出还原为 Vue-ready HTML | Axure 页 + 内嵌图表源 | Vue-ready HTML |
 | [`vue-ready-html-to-vue3`](./vue-ready-html-to-vue3/) | Vue-ready HTML 迁成 Vue3 工程 | **已有的** Vue-ready HTML | 独立 Vue3 工程 |
 
-每个包的入口文件是目录内的 `SKILL.md`（YAML frontmatter + 正文）。其他工具若无 Skill 机制，**直接把该文件当提示词 / 规则引用即可**。
+每个包的入口文件是目录内的 `SKILL.md`。其他工具若无 Skill 机制，**直接把该文件当提示词 / 规则引用即可**。
 
 ## 关系说明
 
@@ -18,33 +18,63 @@
 
 串联示意见 [PIPELINE.md](./PIPELINE.md)。
 
-## 怎么用（通用）
+## 用 npx 安装（推荐）
 
-任选其一即可，按你当前编辑器 / Agent 习惯：
+需要本机 Node.js ≥ 18。
 
-1. **对话里引用**  
-   打开或 `@` / 附加对应目录的 `SKILL.md`，再说你的具体任务（页面名、路径、截图等）。
-
-2. **项目规则**  
-   把需要的 `SKILL.md` 拷进仓库约定位置，例如：
-   - `.cursor/rules/` 或项目 `AGENTS.md` / `CLAUDE.md`
-   - `.github/copilot-instructions.md`（或拆成多份再在说明里链过去）
-   - 其他工具的「自定义指令 / System prompt / Rules」配置项  
-
-3. **系统 / 用户提示词**  
-   将 `SKILL.md` 正文粘贴进 Agent 的自定义指令；一次只用一个包，避免互相抢上下文。
-
-4. **本机 Cursor Skills 目录（可选）**  
-   若使用 Cursor 且希望自动发现 Skill：
+### 从 Gitee 一键安装（当前仓库）
 
 ```bash
-# 按需拷贝一个或多个
-cp -R screenshot-to-vue-ready-html ~/.cursor/skills/
-cp -R axure-html-restore ~/.cursor/skills/
-cp -R vue-ready-html-to-vue3 ~/.cursor/skills/
+# 全部装到 ~/.cursor/skills（Cursor 默认发现路径）
+npx --yes git+https://gitee.com/zxc19890923/cursor-skills-trace-html-vue.git
 ```
 
-> Cursor 的 `~/.cursor/skills/` 只是其中一种落盘方式，**不是唯一用法**。换编辑器时用上面 1～3 即可。
+### 常用参数
+
+```bash
+# 只装某一个
+npx --yes git+https://gitee.com/zxc19890923/cursor-skills-trace-html-vue.git \
+  install vue-ready-html-to-vue3
+
+# 装到当前项目目录（任意编辑器均可引用，不依赖 Cursor）
+npx --yes git+https://gitee.com/zxc19890923/cursor-skills-trace-html-vue.git \
+  --preset local
+# → ./agent-skills/<包名>/SKILL.md
+
+# 自定义目录
+npx --yes git+https://gitee.com/zxc19890923/cursor-skills-trace-html-vue.git \
+  --dest ./.agent-skills
+
+# 覆盖已存在目录
+npx --yes git+https://gitee.com/zxc19890923/cursor-skills-trace-html-vue.git --force
+
+# 查看包列表
+npx --yes git+https://gitee.com/zxc19890923/cursor-skills-trace-html-vue.git list
+```
+
+| `--preset` | 目标目录 |
+|------------|----------|
+| `cursor`（默认） | `~/.cursor/skills` |
+| `cursor-project` | `./.cursor/skills` |
+| `claude` | `./.claude/skills` |
+| `agents` | `./.agents/skills` |
+| `local` | `./agent-skills` |
+
+> 若已发布到 npm，也可：`npx html-vue-agent-skills`（包名见 `package.json`）。
+
+## 不用 npx 时
+
+任选其一：
+
+1. **对话里引用** — `@` / 附加对应 `SKILL.md`  
+2. **拷进项目规则** — `AGENTS.md`、`CLAUDE.md`、`.github/copilot-instructions.md` 等  
+3. **粘贴为自定义指令** — 一次只用一个包  
+
+```bash
+# 手动拷贝示例
+git clone https://gitee.com/zxc19890923/cursor-skills-trace-html-vue.git
+cp -R cursor-skills-trace-html-vue/vue-ready-html-to-vue3 ./agent-skills/
+```
 
 ## 建议
 
