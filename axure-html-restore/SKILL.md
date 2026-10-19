@@ -6,7 +6,8 @@ description: >-
   widgets. Use when the user asks to 还原 Axure、转 HTML、对齐 echarts-axure、
   无 iframe 重建、转 Vue3 原型页, or CONVERT-PROMPT style work under rebuild/.
   Upstream of vue-ready-html-to-vue3. Always audit against Axure + embedded
-  chart sources and fix P0 before claiming fidelity. Not for screenshot-only
+  chart sources and fix P0 and P1 before claiming fidelity. P2 may remain
+  documented. Not for screenshot-only
   (use screenshot-to-vue-ready-html).
 ---
 
@@ -20,7 +21,7 @@ description: >-
 
 ## 一句话原则
 
-**壳手写对齐 Axure；图从内嵌图表源原样迁；不定高、不简化、不 iframe；结构可拆 Vue3；未审核修 P0 不得声称对齐。**
+**壳手写对齐 Axure；图从内嵌图表源原样迁；不定高、不简化、不 iframe；结构可拆 Vue3；未审核修 P0、P1 不得声称对齐。**
 
 ## 真源（对照什么）
 
@@ -39,7 +40,8 @@ description: >-
 5. 顶栏筛选：label 与控件同一行（源如此则保持）  
 6. 性能：Tab 懒加载保活；静态地图数据本地优先；Resize 防抖；重计算避免 O(n²)  
 7. widget 自带标题则不要外壳再套重复 toolbar  
-8. **禁止**跳过 Step 6 审核就声称「已对齐 Axure」
+8. **禁止**跳过 Step 6 审核就声称「已对齐 Axure」  
+9. **大屏页**（若源为固定分辨率大屏）：设计稿保持源宽高（常见 1920×1080），视口用 `scale(sx,sy)` 铺满、允许轻微拉伸；禁止改成流式 `100%` 重排或默认黑边 letterbox  
 
 ## 标准流程
 
@@ -75,8 +77,8 @@ description: >-
 2. 输出差距清单，写入 `AUDIT.md`，按严重度：
    - **P0**：缺图/空白图、高度塌成一条、图表被简化重画、主筛选/Tab/主文案错、缺关键列或区块  
    - **P1**：布局比例明显偏差、交互缺一截（如口径切换）、重复 toolbar、资源路径偶发失败  
-   - **P2**：细微样式/字体、示意级装饰  
-3. **先修 P0，再修 P1**；修完再扫一轮，直到无 P0  
+   - **P2**：细微样式/字体、示意级装饰（可标未覆盖后交付）  
+3. **先修 P0，再修 P1**；修完再扫一轮，直到无 P0、P1。书面说明不能代替 P0、P1 修复  
 4. `AUDIT.md` 每行：`源（Axure 节点或图表文件）→ 产出文件 → ✅/⚠️ + 等级`  
 5. 用户说「差距大 / 审核一下 / 继续」时：回到本步，禁止无视源重新简化一版  
 
@@ -111,7 +113,7 @@ description: >-
 - [ ] 无 iframe、无 dump-inline；图表来自内嵌源 1:1  
 - [ ] 每个图表位高度为确定 px，且对齐 Axure iframe  
 - [ ] `data-v-page` / `data-v-component` 齐全  
-- [ ] 已做 Step 6 审核，`AUDIT.md` 无未关闭的 P0  
+- [ ] 已做 Step 6 审核，`AUDIT.md` 无未关闭的 P0、P1
 - [ ] 可直接作为 `vue-ready-html-to-vue3` 输入  
 
 ## 开场话术
@@ -120,7 +122,7 @@ description: >-
 请把 Axure 导出页「{页面名}.html」严格还原为手写 Vue-ready HTML，输出到 {目录}/。
 对照：壳=Axure 页；图=内嵌图表源（从 data.js 列全）；尺寸=iframe 宽高。
 硬性：无 iframe、无 dump-inline、图表 1:1、data-v-page/component、高度确定 px。
-交付 HTML+assets+AUDIT；必须对照 Axure 审核并消除 P0 后再交。
+交付 HTML+assets+AUDIT；必须对照 Axure 审核并消除 P0、P1 后再交。
 ```
 
 ## 相关

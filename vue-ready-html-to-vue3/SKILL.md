@@ -6,8 +6,8 @@ description: >-
   the user asks to 转 Vue3、生成 Vue 工程、HTML 迁 Vue、原型工程化. Works for
   any mid-admin/dashboard Vue-ready HTML, not only one product. Input must be
   Vue-ready HTML (use screenshot-to-vue-ready-html or axure-html-restore first).
-  Always audit the Vue app against the source HTML and fix P0 before claiming
-  migration complete.
+  Always audit the Vue app against the source HTML and fix P0 and P1 before
+  claiming migration complete. P2 may remain documented.
 ---
 
 # Vue-ready HTML → Vue3 工程（通用）
@@ -45,7 +45,7 @@ description: >-
 2. **一期页面范围**：从源 HTML 列出，用户确认子集  
 3. **UI 库**：默认 Element Plus；可改为 Naive / Ant Design Vue / 无组件库  
 4. **图表**：有 ECharts 则装 ECharts；复杂 IIFE widget 过渡期可挂载，目标仍是 Vue SFC  
-5. **保真策略**：`strict`（交互/高度对齐源 HTML）或 `ep-acceptable`（表单/表可用组件库，细微差可接受）
+5. **保真策略**：`strict`（交互/高度对齐源 HTML）或 `ep-acceptable`（表单/表可用组件库，仅 P2 细微样式差可接受；P0、P1 两种策略都必须修完）
 
 ## 默认技术栈
 
@@ -120,10 +120,10 @@ Vue 3 + Vite + TypeScript + Vue Router + Pinia
 | 等级 | 含义 | 处理 |
 |------|------|------|
 | **P0** | 缺图/空白图、高度塌、主交互明显不对、缺列/缺区块、图表被简化成「假图」 | **必须修完** |
-| **P1** | 功能明显简化、布局比例差大、Tab/筛选后偶发不 resize | 交付前尽量修；留下须书面说明 |
+| **P1** | 功能明显简化、布局比例差大、Tab/筛选后偶发不 resize | **必须修完**（书面说明不能代替修复） |
 | **P2** | 组件库替换导致的细微样式差 | `ep-acceptable` 可留；`strict` 尽量收 |
 
-3. **先修 P0，再修 P1**；修完再扫一轮，直到无 P0  
+3. **先修 P0，再修 P1**；修完再扫一轮，直到无 P0、P1  
 4. 再跑：`npm run build`（含类型检查）通过  
 5. 用户说「差距大 / 审核一下 / 继续」时：回到本步，禁止只加功能不对照源 HTML  
 
@@ -134,8 +134,8 @@ Vue 3 + Vite + TypeScript + Vue Router + Pinia
 - [ ] 一期路由可开，`npm run dev` / `build` 通过  
 - [ ] 每个源 `data-v-component` 有对应 SFC 或书面合并说明  
 - [ ] 图表切换 Tab / 筛选后不塌、不空白  
-- [ ] 高度与栅格与源 HTML 同档（strict）或差异已记录（ep-acceptable）  
-- [ ] 已产出 `AUDIT-VUE.md`，无未关闭的 P0  
+- [ ] 高度与栅格与源 HTML 同档；`ep-acceptable` 只允许已记录的 P2 细微样式差  
+- [ ] 已产出 `AUDIT-VUE.md`，无未关闭的 P0、P1  
 - [ ] 无擅自改写无关业务仓库  
 
 ## 开场话术
@@ -146,7 +146,7 @@ Vue 3 + Vite + TypeScript + Vue Router + Pinia
 UI 库：{Element Plus|…}；保真：{strict|ep-acceptable}。
 按 data-v-page/component 拆 SFC；复杂图优先挂源 widget 并锁定源高度；
 交付可 dev/build，并出 AUDIT-VUE.md（vs 源 HTML 的 P0/P1/P2）；
-必须消除 P0 后再交，禁止跳过审核。
+必须消除 P0、P1 后再交，禁止跳过审核。
 ```
 
 ## 可选附录：中后台 + ECharts 常见坑

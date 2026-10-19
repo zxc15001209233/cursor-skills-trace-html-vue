@@ -8,7 +8,8 @@ description: >-
   echarts-axure 1:1 port (use axure-html-restore) or full Vue scaffolding
   (use vue-ready-html-to-vue3). Requires a filesystem original (prefer
   1920×1080); chat-compressed images alone are insufficient. Always audit
-  against the original and fix before claiming fidelity.
+  against the original and fix P0 and P1 before claiming fidelity. P2 may
+  remain documented.
 ---
 
 # 截图 → Vue-ready HTML
@@ -113,8 +114,8 @@ resize 后图表须 `echarts.resize()`。中后台列表/表单页不适用本�
 2. 输出差距清单，按严重度：
    - **P0**：表头/主数字错、导航分区错、关键区块缺失或多余（如地图多了标题条）  
    - **P1**：信息架构（如标题与「同比」是否同行）、控件形态、色相主题  
-   - **P2**：装饰线/灯管示意级（标「未覆盖像素级材质」即可）  
-3. **先修 P0，再修 P1**；修完再扫一轮，直到无 P0  
+   - **P2**：装饰线/灯管示意级（标「未覆盖像素级材质」即可，可留）  
+3. **先修 P0，再修 P1**；修完再扫一轮，直到无 P0、P1。书面说明不能代替 P0、P1 修复  
 4. 向用户交付时写清：已按磁盘原图审核；仍为结构同构，灯管/电路密度未承诺像素级  
 
 用户说「差距大 / 审核一下 / 继续优化」时：回到 Step 3，禁止重新瞎画一版无视原图数字。
@@ -127,7 +128,7 @@ Step 0 → JSON → HTML → **审核修复**；禁止跳过 JSON，禁止跳过
 
 - [ ] 源图来自文件系统，真实分辨率已记录（大屏优先 1920×1080）  
 - [ ] 与原图结构同构（分区、层级、主文案与表头数字）  
-- [ ] 已做过 Step 3 审核并消除 P0  
+- [ ] 已做过 Step 3 审核并消除 P0、P1
 - [ ] 每个可复用区块有 `data-v-component`  
 - [ ] 图表容器有确定 px 高度  
 - [ ] 可直接作为 `vue-ready-html-to-vue3` 输入  
