@@ -8,8 +8,8 @@ description: >-
   echarts-axure 1:1 port (use axure-html-restore) or full Vue scaffolding
   (use vue-ready-html-to-vue3). Requires a filesystem original (prefer
   1920×1080); chat-compressed images alone are insufficient. Always audit
-  against the original and fix P0 and P1 before claiming fidelity. P2 may
-  remain documented.
+  against the original and fix P0, P1, and P2 before claiming fidelity. A
+  documented P2 is not done.
 ---
 
 # 截图 → Vue-ready HTML
@@ -110,13 +110,13 @@ resize 后图表须 `echarts.resize()`。中后台列表/表单页不适用本�
 
 **首轮 HTML 几乎一定有硬错**（表头列名、导航左右位、KPI 信息架构、假数据）。必须审核后再交付。
 
-1. 用原图分区 clip，与当前 HTML（同分辨率打开或截屏）**并排对照**  
+1. 用原图分区 clip，与当前 HTML（同分辨率打开或截屏）**并排对照**。分区在画面上 ≠ 对齐。每个主区块记下原图与 HTML 的从左到右顺序、主文案、主色；没有这些实测值就不得写「已对齐」
 2. 输出差距清单，按严重度：
-   - **P0**：表头/主数字错、导航分区错、关键区块缺失或多余（如地图多了标题条）  
-   - **P1**：信息架构（如标题与「同比」是否同行）、控件形态、色相主题  
-   - **P2**：装饰线/灯管示意级（标「未覆盖像素级材质」即可，可留）  
-3. **先修 P0，再修 P1**；修完再扫一轮，直到无 P0、P1。书面说明不能代替 P0、P1 修复  
-4. 向用户交付时写清：已按磁盘原图审核；仍为结构同构，灯管/电路密度未承诺像素级  
+   - **P0**：表头/主数字错、导航分区错、关键区块缺失或多余（如地图多了标题条）、**KPI/卡片从左到右顺序错、角标或主文案错、选中态做成另一种控件**  
+   - **P1**：信息架构（如标题与「同比」是否同行）、控件形态、色相主题、**标记色/涨跌色明显不对、缺源里有的图标**  
+   - **P2**：装饰线/灯管、字距、圆角、阴影。等级低，也必须修完；标「未覆盖像素级材质」不算完成。KPI 顺序、角标、选中态不能标进 P2  
+3. **先修 P0，再修 P1，再修 P2**；修完再并排看改过的块，直到无 P0、P1、P2。书面说明不能代替修复  
+4. 向用户交付时写清：已按磁盘原图审核，并列过实测；P0、P1、P2 均已关闭  
 
 用户说「差距大 / 审核一下 / 继续优化」时：回到 Step 3，禁止重新瞎画一版无视原图数字。
 
@@ -128,7 +128,7 @@ Step 0 → JSON → HTML → **审核修复**；禁止跳过 JSON，禁止跳过
 
 - [ ] 源图来自文件系统，真实分辨率已记录（大屏优先 1920×1080）  
 - [ ] 与原图结构同构（分区、层级、主文案与表头数字）  
-- [ ] 已做过 Step 3 审核并消除 P0、P1
+- [ ] 已做过 Step 3：并排量过顺序、主文案、主色、字距、圆角、阴影，差距清单有实测值，无未关闭的 P0、P1、P2
 - [ ] 每个可复用区块有 `data-v-component`  
 - [ ] 图表容器有确定 px 高度  
 - [ ] 可直接作为 `vue-ready-html-to-vue3` 输入  
@@ -139,7 +139,7 @@ Step 0 → JSON → HTML → **审核修复**；禁止跳过 JSON，禁止跳过
 按 screenshot-to-vue-ready-html：
 1) 请提供磁盘上的原图路径（大屏优先 1920×1080）；不要只靠聊天压缩图。
 2) 鉴定宽高 → 分区解析为 JSON（含 vue_hint）→ 生成 Vue-ready HTML
-   → 对照原图审核并修复 P0/P1。
+   → 对照原图审核并修复 P0、P1、P2。
 输出到 {目标路径}。禁止 iframe、禁止跳过 JSON、禁止跳过审核。
 ```
 

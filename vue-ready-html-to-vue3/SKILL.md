@@ -6,8 +6,8 @@ description: >-
   the user asks to 转 Vue3、生成 Vue 工程、HTML 迁 Vue、原型工程化. Works for
   any mid-admin/dashboard Vue-ready HTML, not only one product. Input must be
   Vue-ready HTML (use screenshot-to-vue-ready-html or axure-html-restore first).
-  Always audit the Vue app against the source HTML and fix P0 and P1 before
-  claiming migration complete. P2 may remain documented.
+  Always audit the Vue app against the source HTML and fix P0, P1, and P2
+  before claiming migration complete. A documented P2 is not done.
 ---
 
 # Vue-ready HTML → Vue3 工程（通用）
@@ -45,7 +45,7 @@ description: >-
 2. **一期页面范围**：从源 HTML 列出，用户确认子集  
 3. **UI 库**：默认 Element Plus；可改为 Naive / Ant Design Vue / 无组件库  
 4. **图表**：有 ECharts 则装 ECharts；复杂 IIFE widget 过渡期可挂载，目标仍是 Vue SFC  
-5. **保真策略**：`strict`（交互/高度对齐源 HTML）或 `ep-acceptable`（表单/表可用组件库，仅 P2 细微样式差可接受；P0、P1 两种策略都必须修完）
+5. **保真策略**：`strict`（交互/高度对齐源 HTML）或 `ep-acceptable`（表单/表可用组件库）。两种策略都必须修完 P0、P1、P2；用了组件库也不能留下已量到的字距、圆角、阴影或 1～4px 差
 
 ## 默认技术栈
 
@@ -112,18 +112,18 @@ Vue 3 + Vite + TypeScript + Vue Router + Pinia
 
 ## 审核 → 修复（必做；对照源 HTML）
 
-**脚手架跑起来 ≠ 迁移完成。** 必须对照源 HTML（及上游 AUDIT）审核后再交付。
+**脚手架跑起来 ≠ 迁移完成。** 路由能开、图表不空白，都不算对齐。必须对照源 HTML（及上游 AUDIT）审核后再交付。上游 `AUDIT.md` 里没有实测值的 ✅ 不能沿用，要在浏览器里重测。全局样式和组件库不得用裸 `.panel`、`.kpi` 打进图表内部；canvas 宽高接近整页面板就是样式串了，算缺图。同名节点用坐标锁定，禁止取第一个。
 
-1. **并排对照**：同源路径打开源 HTML vs `npm run dev` 对应路由；逐 `data-v-component` 核对  
-2. 输出 `AUDIT-VUE.md` 差异表，按严重度：
+1. **并排对照**：同源路径打开源 HTML vs `npm run dev` 对应路由；逐 `data-v-component` 记下顺序、文案、选中态、高度的实测值  
+2. 输出 `AUDIT-VUE.md` 差异表，每行 `源（实测）→ Vue（实测）→ ✅/⚠️ + 等级`。没有实测值的 ✅ 视为未审核：
 
 | 等级 | 含义 | 处理 |
 |------|------|------|
-| **P0** | 缺图/空白图、高度塌、主交互明显不对、缺列/缺区块、图表被简化成「假图」 | **必须修完** |
-| **P1** | 功能明显简化、布局比例差大、Tab/筛选后偶发不 resize | **必须修完**（书面说明不能代替修复） |
-| **P2** | 组件库替换导致的细微样式差 | `ep-acceptable` 可留；`strict` 尽量收 |
+| **P0** | 缺图/空白图、高度塌、主交互明显不对、缺列/缺区块、图表被简化成「假图」、主卡片顺序错、主数字或角标错、选中态做成另一种控件 | **必须修完** |
+| **P1** | 功能明显简化、布局比例差大、Tab/筛选后偶发不 resize、标记色或涨跌色明显不对、缺源里有的图标 | **必须修完**（书面说明不能代替修复） |
+| **P2** | 组件库替换导致的字距、圆角、阴影、1～4px 差 | **必须修完**。`ep-acceptable` 也不能留。顺序、角标、选中态不能标进 P2 |
 
-3. **先修 P0，再修 P1**；修完再扫一轮，直到无 P0、P1  
+3. **先修 P0，再修 P1，再修 P2**；修完再打开两边复测改过的块，直到无 P0、P1、P2。书面说明不能代替修复。与源一致的行为不是未关闭的 P2  
 4. 再跑：`npm run build`（含类型检查）通过  
 5. 用户说「差距大 / 审核一下 / 继续」时：回到本步，禁止只加功能不对照源 HTML  
 
@@ -134,8 +134,8 @@ Vue 3 + Vite + TypeScript + Vue Router + Pinia
 - [ ] 一期路由可开，`npm run dev` / `build` 通过  
 - [ ] 每个源 `data-v-component` 有对应 SFC 或书面合并说明  
 - [ ] 图表切换 Tab / 筛选后不塌、不空白  
-- [ ] 高度与栅格与源 HTML 同档；`ep-acceptable` 只允许已记录的 P2 细微样式差  
-- [ ] 已产出 `AUDIT-VUE.md`，无未关闭的 P0、P1  
+- [ ] 高度与栅格与源 HTML 同档；字距、圆角、阴影已按实测对齐  
+- [ ] 已产出 `AUDIT-VUE.md`，每行有源与 Vue 的实测值，无未关闭的 P0、P1、P2  
 - [ ] 无擅自改写无关业务仓库  
 
 ## 开场话术
@@ -146,7 +146,7 @@ Vue 3 + Vite + TypeScript + Vue Router + Pinia
 UI 库：{Element Plus|…}；保真：{strict|ep-acceptable}。
 按 data-v-page/component 拆 SFC；复杂图优先挂源 widget 并锁定源高度；
 交付可 dev/build，并出 AUDIT-VUE.md（vs 源 HTML 的 P0/P1/P2）；
-必须消除 P0、P1 后再交，禁止跳过审核。
+必须消除 P0、P1、P2 后再交，禁止跳过审核。书面「P2 未覆盖」不算完成。
 ```
 
 ## 可选附录：中后台 + ECharts 常见坑

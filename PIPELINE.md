@@ -7,10 +7,10 @@
         │
         ▼
 Skill1 screenshot-to-vue-ready-html
-  Step0 鉴定 → JSON → HTML → 审核修 P0、P1
+  Step0 鉴定 → JSON → HTML → 审核修 P0、P1、P2
         │
 Axure 导出 + 内嵌图表 ──► Skill2 axure-html-restore
-                            盘点→壳→迁图 → 审核修 P0、P1 + AUDIT.md
+                            盘点→壳→迁图 → 审核修 P0、P1、P2 + AUDIT.md
         │                         │
         └──────────┬──────────────┘
                    ▼
@@ -18,7 +18,7 @@ Axure 导出 + 内嵌图表 ──► Skill2 axure-html-restore
                    │
                    ▼
 Skill3 vue-ready-html-to-vue3
-  脚手架 → 拆 SFC → 对照源 HTML 审核修 P0、P1 + AUDIT-VUE.md
+  脚手架 → 拆 SFC → 对照源 HTML 审核修 P0、P1、P2 + AUDIT-VUE.md
   → npm run build
                    │
                    ▼
@@ -29,15 +29,19 @@ Skill3 vue-ready-html-to-vue3
 
 | Skill | 对照真源 | 审核产物 | 硬规则 |
 |-------|----------|----------|--------|
-| screenshot-to-vue-ready-html | 磁盘原图（大屏优先 1920×1080） | parse 警告 + 差距清单 | 聊天压缩图不可当唯一真源；无 P0、P1 再交 |
-| axure-html-restore | Axure 页 + 内嵌图表 HTML | `AUDIT.md` | 禁止简化重画图；无 P0、P1 再交 |
-| vue-ready-html-to-vue3 | 已验收 Vue-ready HTML | `AUDIT-VUE.md` | 能跑 ≠ 迁完；无 P0、P1 且 build 过再交 |
+| screenshot-to-vue-ready-html | 磁盘原图（大屏优先 1920×1080） | parse 警告 + 差距清单 | 聊天压缩图不可当唯一真源；无 P0、P1、P2 再交 |
+| axure-html-restore | Axure 页 + 内嵌图表 HTML | `AUDIT.md` | 禁止简化重画图；无 P0、P1、P2 再交 |
+| vue-ready-html-to-vue3 | 已验收 Vue-ready HTML | `AUDIT-VUE.md` | 能跑 ≠ 迁完；无 P0、P1、P2 且 build 过再交 |
 
 等级约定（三处一致）：
 
-- **P0**：主结构/主数字/缺图塌高/假图 → 必须修完  
-- **P1**：比例、交互缺截、信息架构/控件形态 → 必须修完（书面说明不能代替）  
-- **P2**：细微样式 / 示意装饰 → 可标未覆盖  
+- **P0**：主结构/主数字/缺图塌高/假图、主卡片从左到右顺序错、角标或主文案错、选中态做成另一种控件 → 必须修完  
+- **P1**：比例、交互缺截、信息架构/控件形态、标记色或涨跌色明显不对、缺源里有的图标 → 必须修完（书面说明不能代替）  
+- **P2**：字距、圆角、阴影、1～4px 宽差、示意装饰 → 必须修完。标「未覆盖」不算完成。与源一致的行为不是未关闭的 P2  
+
+**对照方法（三处一致，下次做别的项目也照此执行）：**
+
+文件在、尺寸一致、图不是空白，都不算审核。必须并排打开真源和产出，每个主区块记下顺序、文案、颜色或尺寸的实测值。视觉顺序以页面坐标为准，不以 DOM / `data.js` 的书写顺序为准。同名节点有多个时，用坐标锁定要量的那一个，禁止取第一个。大屏有 `scale()` 时，用未缩放的设计坐标对照。壳的布局 CSS 必须限定在页面根的直接子级，禁止裸 `.panel`、`.kpi` 去打到图表内部；canvas 宽高接近整页面板，就是样式串了，算缺图。审核表每行写成 `源（实测）→ 产出（实测）→ ✅/⚠️ + 等级`；没有实测值的 ✅ 视为未审核，不得交付。修完要再打开两边复测改过的块。  
 
 **大屏显示**：设计稿固定基准分辨率（默认 1920×1080），视口用 `scale(sx, sy)` 铺满，允许轻微拉伸；禁止流式重排，禁止默认黑边 letterbox。
 
